@@ -1,0 +1,262 @@
+/* =====================================================================
+   cards.css — festival card (.fiesta), carousel and card grids
+   ---------------------------------------------------------------------
+   The card has a single class. Children are targeted by element type
+   (img, h3, p, time, mark, data, a:last-child) instead of position, so
+   adding or reordering children does not silently break the styles.
+   ===================================================================== */
+
+/* Any list item holding a card becomes a size container */
+:has(> .fiesta) {
+    container: card / inline-size;
+}
+
+.fiesta {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "img   img"
+        "title title"
+        "place place"
+        "time  mark";
+    align-items: center;
+    gap: var(--space-3xs) var(--space-2xs);
+    height: 100%;
+    padding-bottom: var(--space-s);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+    background:
+        linear-gradient(180deg, transparent 55%, color-mix(in oklab, var(--violet) 7%, transparent)),
+        var(--surface);
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+    transition:
+        translate var(--dur) var(--ease-out),
+        box-shadow var(--dur) var(--ease-out),
+        border-color var(--dur);
+
+    &:hover,
+    &:focus-within {
+        translate: 0 -3px;
+        border-color: var(--line-strong);
+        box-shadow: var(--shadow-2);
+    }
+
+    > img {
+        grid-area: img;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        transition: scale var(--dur-slow) var(--ease-out), filter var(--dur);
+    }
+
+    &:hover > img {
+        scale: 1.03;
+    }
+
+    > h3 {
+        grid-area: title;
+        padding: var(--space-xs) var(--space-s) 0;
+        font-size: var(--step-1);
+
+        > a {
+            text-decoration: none;
+
+            /* Stretched link: the whole card is clickable */
+            &::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 1;
+            }
+
+            &:focus-visible {
+                outline: none;
+
+                &::after {
+                    outline: 3px solid var(--focus);
+                    outline-offset: -3px;
+                    border-radius: var(--radius-l);
+                }
+            }
+        }
+    }
+
+    > p {
+        grid-area: place;
+        padding-inline: var(--space-s);
+        color: var(--ink-soft);
+        font-size: var(--step--1);
+    }
+
+    > time {
+        grid-area: time;
+        padding-left: var(--space-s);
+        color: var(--gold-text);
+        font-weight: 650;
+        font-size: var(--step--1);
+    }
+
+    > mark {
+        grid-area: mark;
+        margin-right: var(--space-s);
+        padding: 0.2rem 0.65rem;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: var(--step--2);
+        font-weight: 650;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    &[data-estat="en-curs"] > mark {
+        background: var(--btn);
+        color: var(--btn-ink);
+        animation: pulse 2s infinite;
+    }
+
+    /* Distance badge (nearby cards) over the image */
+    > data {
+        position: absolute;
+        top: var(--space-xs);
+        left: var(--space-xs);
+        z-index: 2;
+        padding: 0.25rem 0.7rem;
+        border-radius: var(--radius-pill);
+        background: color-mix(in oklab, var(--night) 70%, transparent);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        font-size: var(--step--1);
+        font-weight: 650;
+    }
+
+    /* Share shortcut: glassy round button above the stretched link */
+    > a:last-child {
+        position: absolute;
+        top: var(--space-xs);
+        right: var(--space-xs);
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 50%;
+        background: color-mix(in oklab, var(--night) 55%, transparent);
+        backdrop-filter: blur(10px);
+        color: #fff;
+        border: 1px solid rgb(255 255 255 / 0.25);
+        transition: background var(--dur-fast), scale var(--dur-fast) var(--ease-spring);
+
+        &:hover {
+            background: var(--red);
+            scale: 1.08;
+        }
+    }
+
+    /* Skeleton while loading (empty card) */
+    &:empty {
+        min-height: 19rem;
+        border-color: transparent;
+        background: linear-gradient(100deg, var(--surface) 30%, var(--surface-2) 50%, var(--surface) 70%) 0 0 / 200% 100%;
+        animation: shimmer 1.3s linear infinite;
+        box-shadow: none;
+        translate: none;
+    }
+}
+
+/* Wide cards (e.g. single-column lists on tablets) go horizontal */
+@container card (min-width: 34rem) {
+    .fiesta {
+        grid-template-columns: minmax(12rem, 40%) 1fr auto;
+        grid-template-areas:
+            "img title title"
+            "img place place"
+            "img time  mark";
+        align-content: center;
+        padding-bottom: 0;
+
+        > img {
+            height: 100%;
+            aspect-ratio: auto;
+            min-height: 11rem;
+        }
+
+        > h3 {
+            align-self: end;
+        }
+
+        > :is(time, mark) {
+            align-self: start;
+            margin-top: var(--space-2xs);
+        }
+    }
+}
+
+/* ---------- Upcoming carousel (scroll-snap) -------------------------- */
+#properes > ol {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(80%, 19.5rem);
+    gap: var(--space-s);
+    margin-inline: calc(var(--pad) * -1);
+    padding: var(--space-2xs) var(--pad) var(--space-m);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--pad);
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+    mask-image: linear-gradient(90deg, transparent, #000 var(--space-s), #000 calc(100% - var(--space-l)), transparent);
+
+    > li {
+        scroll-snap-align: start;
+        animation: fade-up var(--dur-slow) var(--ease-out) both;
+
+        &:nth-child(2) { animation-delay: 60ms; }
+        &:nth-child(3) { animation-delay: 120ms; }
+        &:nth-child(4) { animation-delay: 180ms; }
+    }
+
+    &:focus-visible {
+        outline-offset: -3px;
+    }
+}
+
+/* ---------- Card grids (near you, also nearby) ----------------------- */
+:is(#aprop, #tambe) > ol {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-s);
+
+    &[aria-busy="true"] > li > .fiesta:not(:empty) {
+        opacity: 0.5;
+    }
+
+    > li > p {
+        padding: var(--space-m);
+        border: 1px dashed var(--line-strong);
+        border-radius: var(--radius-l);
+        color: var(--ink-soft);
+    }
+}
+
+#aprop {
+    > header > p {
+        color: var(--mint-text);
+    }
+
+    > header > label {
+        display: grid;
+        gap: var(--space-3xs);
+        font-size: var(--step--1);
+        color: var(--ink-soft);
+
+        > select {
+            min-width: 7.5rem;
+        }
+    }
+}

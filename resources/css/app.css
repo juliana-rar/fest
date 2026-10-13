@@ -1,0 +1,20 @@
+/* =====================================================================
+   Festes Majors de Catalunya — stylesheet entry point
+   ---------------------------------------------------------------------
+   100% hand-written CSS, no frameworks. Cascade layers make the order of
+   precedence explicit: later layers win regardless of selector weight.
+   Leaflet's own stylesheet is placed in the lowest "vendor" layer so our
+   overrides in map.css always apply.
+   ===================================================================== */
+
+@layer vendor, base, layout, components, pages, admin;
+
+@import "leaflet/dist/leaflet.css" layer(vendor);
+@import "./base.css" layer(base);
+@import "./layout.css" layer(layout);
+@import "./cards.css" layer(components);
+@import "./calendar.css" layer(components);
+@import "./map.css" layer(components);
+@import "./story.css" layer(components);
+@import "./fiesta.css" layer(pages);
+@import "./admin.css" layer(admin);

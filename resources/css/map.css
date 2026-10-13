@@ -1,0 +1,671 @@
+/* =====================================================================
+   map.css — map hero (#explora): full-screen Leaflet map with floating
+   glass panels (title + search, filters, visible festivals) and legend.
+   Phones: the same blocks simply stack in reading order.
+   ===================================================================== */
+
+main > #explora {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-s);
+    padding-block: 0 var(--space-m);
+    background:
+        radial-gradient(60rem 30rem at 85% -10%, color-mix(in oklab, var(--violet) 30%, transparent), transparent 60%),
+        radial-gradient(40rem 26rem at 0% 100%, color-mix(in oklab, var(--red) 24%, transparent), transparent 65%),
+        linear-gradient(180deg, var(--bg-deep), var(--bg));
+
+    /* Phones: map right after the title, then legend, filters and list.
+       (On desktop every block is placed explicitly, so order is ignored.) */
+    > #zona { order: 1; }
+    > #mapa { order: 1; }
+    > #llegenda { order: 2; }
+    > #filtres { order: 3; }
+    > #al-mapa { order: 4; }
+
+    /* ---------- Title + search panel ---------- */
+    > header {
+        display: grid;
+        gap: var(--space-xs);
+        padding-top: var(--space-l);
+        animation: fade-up var(--dur-slow) var(--ease-out) both;
+
+        > p:first-child {
+            justify-self: start;
+            padding: 0.3rem 0.85rem;
+            border: 1px solid color-mix(in oklab, var(--gold) 45%, transparent);
+            border-radius: var(--radius-pill);
+            background: color-mix(in oklab, var(--gold) 10%, transparent);
+            color: var(--gold-text);
+            font-size: var(--step--2);
+            font-weight: 650;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        > h1 {
+            font-size: clamp(2rem, 1.5rem + 2.4vw, 2.9rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 0.98;
+            background: linear-gradient(100deg, var(--ink) 55%, var(--gold) 85%, var(--red) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        > h1 + p {
+            color: var(--ink-soft);
+        }
+
+        > #cerca {
+            margin-top: var(--space-2xs);
+        }
+    }
+
+    /* ---------- Filters panel ---------- */
+    > #filtres {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+        align-items: end;
+        gap: var(--space-xs);
+        padding: var(--space-s);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-l);
+        background: var(--panel-bg);
+        backdrop-filter: blur(22px) saturate(1.4);
+
+        /* Festival type chips (native checkboxes, styled from the label) */
+        > fieldset {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            min-width: 0;
+            padding: 0;
+            border: 0;
+
+            > legend {
+                margin-bottom: var(--space-2xs);
+                font-size: var(--step--1);
+                font-weight: 650;
+                color: var(--ink-soft);
+            }
+
+            > label {
+                --c: var(--gold);
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.45rem;
+                padding: 0.3rem 0.75rem 0.3rem 0.6rem;
+                border: 1px solid var(--line);
+                border-radius: var(--radius-pill);
+                font-size: 0.8rem;
+                font-weight: 550;
+                color: var(--ink-soft);
+                cursor: pointer;
+                user-select: none;
+                transition: background var(--dur-fast), border-color var(--dur-fast), scale var(--dur-fast) var(--ease-spring);
+
+                &::before {
+                    content: "";
+                    width: 0.5rem;
+                    height: 0.5rem;
+                    border-radius: 50%;
+                    background: var(--c);
+                }
+
+                > input {
+                    position: absolute;
+                    opacity: 0;
+                    pointer-events: none;
+                }
+
+                &:hover {
+                    background: color-mix(in oklab, var(--c) 12%, transparent);
+                }
+
+                &:active {
+                    scale: 0.95;
+                }
+
+                &:has(:checked) {
+                    border-color: color-mix(in oklab, var(--c) 70%, transparent);
+                    background: color-mix(in oklab, var(--c) 20%, var(--surface));
+                    color: var(--ink);
+                }
+
+                &:has(:focus-visible) {
+                    outline: 3px solid var(--focus);
+                    outline-offset: 2px;
+                }
+            }
+        }
+
+        > label {
+            display: grid;
+            gap: var(--space-3xs);
+            font-size: var(--step--1);
+            font-weight: 600;
+            color: var(--ink-soft);
+
+            > select {
+                min-height: 2.5rem;
+                padding-block: 0.4rem;
+            }
+
+            /* Highlight active filters */
+            &:has(option:checked:not([value=""])) {
+                color: var(--gold-text);
+
+                > select {
+                    border-color: var(--gold);
+                    background-color: color-mix(in oklab, var(--gold) 10%, var(--surface));
+                }
+            }
+        }
+
+        > button[type="reset"] {
+            min-height: 2.5rem;
+            padding-inline: var(--space-s);
+            border-radius: var(--radius-m);
+            border: 1px solid var(--line-strong);
+            font-weight: 600;
+            font-size: var(--step--1);
+            transition: background var(--dur-fast), border-color var(--dur-fast);
+
+            &:hover {
+                border-color: var(--red-text);
+                background: color-mix(in oklab, var(--red) 12%, transparent);
+            }
+        }
+
+        > output {
+            grid-column: 1 / -1;
+            color: var(--mint-text);
+            font-size: var(--step--1);
+            font-weight: 650;
+
+            &:empty {
+                display: none;
+            }
+        }
+    }
+
+    /* ---------- The map ---------- */
+    > #mapa {
+        position: relative;
+        z-index: 0;
+        isolation: isolate;
+        height: clamp(22rem, 68vh, 44rem);
+        margin-inline: calc(var(--pad) * -1);
+        background: var(--bg-deep);
+        overflow: hidden;
+
+        &:focus-visible {
+            outline: 3px solid var(--focus);
+            outline-offset: -3px;
+        }
+
+        > noscript {
+            display: grid;
+            place-items: center;
+            height: 100%;
+            color: var(--ink-soft);
+        }
+    }
+
+    /* ---------- Festivals visible in the current map view ---------- */
+    > #al-mapa {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        gap: var(--space-3xs);
+        max-height: 30rem;
+        padding: var(--space-s);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-l);
+        background: var(--panel-bg);
+        backdrop-filter: blur(22px) saturate(1.4);
+
+        > h2 {
+            font: 650 0.72rem / 1 var(--font-body);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+
+        > p {
+            margin-bottom: var(--space-2xs);
+            font: 700 var(--step-1) / 1.15 var(--font-display);
+            letter-spacing: -0.02em;
+            color: var(--ink);
+        }
+
+        > ol {
+            display: grid;
+            align-content: start;
+            gap: 2px;
+            margin-inline: calc(var(--space-2xs) * -1);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            transition: opacity var(--dur);
+
+            &[aria-busy="true"] {
+                opacity: 0.5;
+            }
+
+            > li {
+                --c: var(--gold);
+                position: relative;
+                display: grid;
+                grid-template-columns: 3rem 1fr auto;
+                align-items: center;
+                gap: 0 var(--space-xs);
+                padding: var(--space-2xs);
+                border-radius: var(--radius-m);
+                transition: background var(--dur-fast);
+
+                &:is(:hover, :focus-within, [data-active]) {
+                    background: color-mix(in oklab, var(--c) 16%, transparent);
+                }
+
+                > time {
+                    grid-row: span 2;
+                    display: grid;
+                    place-items: center;
+                    aspect-ratio: 1;
+                    border-radius: var(--radius-m);
+                    border-left: 3px solid var(--c);
+                    background: var(--surface-2);
+                    font-size: var(--step--2);
+                    font-weight: 600;
+                    line-height: 1.1;
+                    text-transform: uppercase;
+                    color: var(--ink-soft);
+
+                    > b {
+                        font: 800 var(--step-1) / 1 var(--font-display);
+                        color: var(--ink);
+                    }
+                }
+
+                > a {
+                    font-weight: 650;
+                    line-height: 1.25;
+                    text-decoration: none;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+
+                > small {
+                    grid-column: 2;
+                    color: var(--ink-soft);
+                }
+
+                > button {
+                    grid-column: 3;
+                    grid-row: 1 / span 2;
+                    display: grid;
+                    place-items: center;
+                    width: 2.3rem;
+                    height: 2.3rem;
+                    border-radius: 50%;
+                    color: var(--ink-soft);
+                    transition: background var(--dur-fast), color var(--dur-fast);
+
+                    &:hover {
+                        background: var(--gold);
+                        color: var(--accent-ink);
+                    }
+                }
+
+                /* Empty-state message */
+                &:only-child:not(:has(a)) {
+                    display: block;
+                    color: var(--ink-soft);
+                }
+            }
+        }
+    }
+
+    /* ---------- Desktop: panels float over a full-screen map ---------- */
+    @media (width >= 64rem) {
+        --panel: var(--space-s);
+        grid-template-columns: minmax(21rem, 25rem) minmax(0, 1fr) minmax(18rem, 22rem);
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: var(--panel);
+        height: max(40rem, calc(100dvh - 4.3rem));
+        padding: var(--panel);
+        background: none;
+
+        > #mapa {
+            grid-area: 1 / 1 / -1 / -1;
+            height: auto;
+            margin: calc(var(--panel) * -1);
+        }
+
+        > header,
+        > #filtres,
+        > #al-mapa,
+        > #llegenda {
+            position: relative;
+            z-index: 1;
+        }
+
+        > header {
+            grid-area: 1 / 1 / 2 / 2;
+            padding: var(--space-m);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-l);
+            background: var(--panel-bg);
+            backdrop-filter: blur(22px) saturate(1.4);
+            box-shadow: var(--panel-shadow);
+
+            > h1 + p {
+                font-size: var(--step--1);
+            }
+        }
+
+        > #filtres {
+            grid-area: 2 / 1 / 3 / 2;
+            align-self: start;
+            max-height: 100%;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            box-shadow: var(--panel-shadow);
+        }
+
+        > #al-mapa {
+            grid-area: 1 / 3 / 3 / 4;
+            max-height: none;
+            box-shadow: var(--panel-shadow);
+        }
+
+        > #zona {
+            grid-area: 1 / 2 / 2 / 3;
+            justify-self: center;
+            align-self: start;
+            position: relative;
+            z-index: 1;
+        }
+
+        > #llegenda {
+            grid-area: 3 / 2 / 4 / 3;
+            justify-self: center;
+            padding: 0.45rem 1.1rem;
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-pill);
+            background: var(--panel-bg);
+            backdrop-filter: blur(22px);
+            box-shadow: var(--panel-shadow);
+        }
+    }
+}
+
+/* ---------- Leaflet theming (library markup) ------------------------- */
+:is(#mapa, #minimapa, [data-picker]) {
+    &.leaflet-container {
+        font: inherit;
+        background: var(--bg-deep);
+    }
+
+    :is(.leaflet-control-zoom a, .leaflet-bar a) {
+        width: 2.4rem;
+        height: 2.4rem;
+        line-height: 2.4rem;
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        color: var(--ink);
+        border-color: var(--line);
+    }
+
+    .leaflet-bar {
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-m);
+        overflow: hidden;
+        box-shadow: var(--shadow-1);
+    }
+
+    .leaflet-control-attribution {
+        background: color-mix(in oklab, var(--bg) 70%, transparent);
+        color: var(--ink-faint);
+        font-size: 0.65rem;
+
+        a {
+            color: var(--ink-soft);
+        }
+    }
+
+    /* Dark basemap: invert the OSM tiles (light theme keeps the originals) */
+    .leaflet-tile-pane {
+        filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.55);
+    }
+
+    /* Comarca polygons: keyboard focus follows the path outline */
+    path.leaflet-interactive:focus-visible {
+        outline: none;
+        stroke: var(--focus);
+        stroke-width: 4px;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) :is(#mapa, #minimapa, [data-picker]) .leaflet-tile-pane {
+        filter: none;
+    }
+}
+
+:root[data-theme="light"] :is(#mapa, #minimapa, [data-picker]) .leaflet-tile-pane {
+    filter: none;
+}
+
+#mapa {
+    .leaflet-popup-content-wrapper {
+        padding: 0;
+        border-radius: var(--radius-l);
+        background: color-mix(in oklab, var(--surface) 92%, transparent);
+        backdrop-filter: blur(16px);
+        color: var(--ink);
+        box-shadow: var(--shadow-2);
+        overflow: hidden;
+    }
+
+    .leaflet-popup-content {
+        width: min(18rem, 70vw) !important;
+        max-height: 24rem;
+        margin: 0;
+        padding: var(--space-2xs);
+        overflow-y: auto;
+
+        > section {
+            display: grid;
+            gap: var(--space-2xs);
+
+            > .fiesta {
+                box-shadow: none;
+                translate: none;
+            }
+        }
+    }
+
+    .leaflet-popup-tip {
+        background: var(--surface);
+    }
+
+    .leaflet-popup-close-button {
+        z-index: 3;
+        width: 1.8rem;
+        height: 1.8rem;
+        top: 0.4rem;
+        right: 0.4rem;
+        border-radius: 50%;
+        background: color-mix(in oklab, var(--night) 60%, transparent);
+        color: #fff;
+        font-size: 1.1rem;
+        line-height: 1.8rem;
+    }
+
+    /* Comarca hover label */
+    .leaflet-tooltip {
+        padding: 0.35rem 0.7rem;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-pill);
+        background: color-mix(in oklab, var(--surface) 92%, transparent);
+        backdrop-filter: blur(10px);
+        color: var(--ink);
+        font-weight: 650;
+        font-size: var(--step--1);
+        box-shadow: var(--shadow-1);
+
+        &::before {
+            display: none;
+        }
+    }
+}
+
+/* ---------- Markers (Leaflet divIcon with class "pin") --------------- */
+.pin {
+    display: grid;
+    place-items: center;
+
+    > b {
+        --heat-color: var(--heat-later);
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        background: var(--heat-color);
+        color: var(--accent-ink);
+        font: 800 0.7rem/1 var(--font-body);
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--heat-color) 28%, transparent), 0 4px 10px rgb(0 0 0 / 0.45);
+        transition: scale var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast);
+    }
+
+    > b[data-heat="now"] { --heat-color: var(--heat-now); color: #fff; animation: pulse 2s infinite; }
+    > b[data-heat="week"] { --heat-color: var(--heat-week); }
+    > b[data-heat="month"] { --heat-color: var(--heat-month); }
+    > b[data-heat="past"] { --heat-color: #8b8ca3; }
+
+    &:is(:hover, :focus-visible) > b,
+    > b[data-active] {
+        scale: 1.3;
+        box-shadow: 0 0 0 5px color-mix(in oklab, var(--heat-color) 40%, transparent), 0 6px 16px rgb(0 0 0 / 0.5);
+    }
+
+    &:focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 4px;
+        border-radius: 50%;
+    }
+}
+
+/* "You are here" marker */
+.pin-me > b {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--mint);
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 8px color-mix(in oklab, var(--mint) 30%, transparent);
+}
+
+/* ---------- Legend (colour scale) ------------------------------------ */
+#llegenda {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2xs) var(--space-s);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+
+    > li {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+
+        &::before {
+            content: "";
+            width: 0.6rem;
+            height: 0.6rem;
+            border-radius: 50%;
+            background: var(--heat-later);
+            box-shadow: 0 0 0 2px color-mix(in oklab, #fff 70%, transparent);
+        }
+
+        &[data-heat="now"]::before { background: var(--heat-now); }
+        &[data-heat="week"]::before { background: var(--heat-week); }
+        &[data-heat="month"]::before { background: var(--heat-month); }
+
+        /* Comarca shading: a tiny gradient swatch */
+        &[data-heat="comarca"]::before {
+            width: 1.6rem;
+            border-radius: 3px;
+            background: linear-gradient(90deg, color-mix(in oklab, var(--gold) 12%, transparent), var(--gold));
+        }
+    }
+}
+
+/* ---------- Zone breadcrumb over the map (#zona) --------------------- */
+#zona {
+    display: flex;
+    align-items: center;
+    justify-self: start;
+    padding: 0.3rem;
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-pill);
+    background: var(--panel-bg);
+    backdrop-filter: blur(22px) saturate(1.4);
+    box-shadow: var(--panel-shadow);
+    animation: fade-up var(--dur) var(--ease-out);
+
+    > button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: var(--radius-pill);
+        font-size: 0.8rem;
+        font-weight: 550;
+        color: var(--ink-soft);
+        white-space: nowrap;
+        transition: background var(--dur-fast), color var(--dur-fast);
+
+        &:hover {
+            background: var(--surface-2);
+            color: var(--ink);
+        }
+
+        /* Chevron separator between levels */
+        & + button::before {
+            content: "";
+            width: 0.4rem;
+            height: 0.4rem;
+            margin-left: -0.55rem;
+            margin-right: 0.15rem;
+            border-top: 1.5px solid var(--ink-faint);
+            border-right: 1.5px solid var(--ink-faint);
+            rotate: 45deg;
+        }
+
+        &[aria-current] {
+            color: var(--ink);
+            font-weight: 650;
+        }
+
+        &:first-child::before {
+            content: "";
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+    }
+}

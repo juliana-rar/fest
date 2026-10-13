@@ -1,0 +1,373 @@
+/* =====================================================================
+   fiesta.css — festival detail page (<article id="festa">)
+   ===================================================================== */
+
+main > #festa {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "hero"
+        "facts"
+        "actions"
+        "about"
+        "programme"
+        "nearby";
+    gap: var(--space-l) var(--space-xl);
+    padding-top: 0;
+
+    @media (width >= 60rem) {
+        grid-template-columns: minmax(0, 1fr) 21rem;
+        grid-template-areas:
+            "hero      hero"
+            "facts     actions"
+            "about     actions"
+            "programme actions"
+            "nearby    nearby";
+        align-items: start;
+    }
+
+    /* ---------- Cover header ---------- */
+    > header {
+        grid-area: hero;
+        position: relative;
+        isolation: isolate;
+        display: grid;
+        align-content: end;
+        gap: var(--space-2xs);
+        min-height: clamp(24rem, 60vh, 38rem);
+        margin-inline: calc(var(--pad) * -1);
+        padding: var(--space-xl) var(--pad) var(--space-l);
+        color: #fff;
+
+        > img {
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Readability gradient over the photo */
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background:
+                linear-gradient(180deg, rgb(15 16 32 / 0.25), transparent 30%, rgb(15 16 32 / 0.55) 60%, var(--bg) 100%);
+        }
+
+        > nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2xs);
+            font-size: var(--step--1);
+
+            > a {
+                padding: 0.25rem 0.7rem;
+                border-radius: var(--radius-pill);
+                background: rgb(15 16 32 / 0.45);
+                backdrop-filter: blur(8px);
+                color: #fff;
+                text-decoration: none;
+
+                & + a::before {
+                    content: "/ ";
+                    opacity: 0.5;
+                }
+            }
+        }
+
+        > h1 {
+            max-width: 18ch;
+            text-shadow: 0 2px 30px rgb(0 0 0 / 0.45);
+        }
+
+        > p {
+            font: 600 var(--step-1) / 1.2 var(--font-body);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        > mark {
+            justify-self: start;
+            padding: 0.35rem 0.95rem;
+            border-radius: var(--radius-pill);
+            background: color-mix(in oklab, var(--mint) 85%, black);
+            color: var(--accent-ink);
+            font-weight: 750;
+            font-size: var(--step--1);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        /* Festival type chips */
+        > ul {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+
+            > li > a {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                padding: 0.3rem 0.8rem 0.3rem 0.55rem;
+                border: 1px solid color-mix(in oklab, var(--c) 60%, transparent);
+                border-radius: var(--radius-pill);
+                background: rgb(15 16 32 / 0.5);
+                backdrop-filter: blur(8px);
+                color: #fff;
+                font-size: var(--step--1);
+                font-weight: 600;
+                text-decoration: none;
+
+                &::before {
+                    content: "";
+                    width: 0.65rem;
+                    height: 0.65rem;
+                    border-radius: 50%;
+                    background: var(--c);
+                }
+
+                &:hover {
+                    background: color-mix(in oklab, var(--c) 35%, rgb(15 16 32 / 0.6));
+                }
+            }
+        }
+    }
+
+    &[data-estat="en-curs"] > header > mark {
+        background: var(--btn);
+        color: var(--btn-ink);
+        animation: pulse 2s infinite;
+    }
+
+    &[data-estat="passada"] > header > mark {
+        background: rgb(255 255 255 / 0.85);
+    }
+
+    /* ---------- Facts ---------- */
+    > dl {
+        /* dt/dd pairs flow column by column, so each pair forms a tile
+           without positional selectors. On phones they simply stack. */
+        grid-area: facts;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0;
+
+        @media (width >= 40rem) {
+            column-gap: var(--space-2xs);
+            grid-template-columns: none;
+            grid-template-rows: auto auto;
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
+        }
+
+        > :is(dt, dd) {
+            background: var(--surface);
+        }
+
+        > dt {
+            align-content: center;
+            padding: var(--space-xs) var(--space-s);
+            border-radius: var(--radius-m) 0 0 var(--radius-m);
+            margin-bottom: var(--space-3xs);
+            font-size: var(--step--2);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+
+        > dd {
+            padding: var(--space-xs) var(--space-s);
+            border-radius: 0 var(--radius-m) var(--radius-m) 0;
+            margin-bottom: var(--space-3xs);
+            font-weight: 650;
+
+            > time {
+                color: var(--gold-text);
+            }
+        }
+
+        @media (width >= 40rem) {
+            > dt {
+                padding-bottom: 0;
+                margin-bottom: 0;
+                border-radius: var(--radius-m) var(--radius-m) 0 0;
+            }
+
+            > dd {
+                padding-top: var(--space-3xs);
+                margin-bottom: 0;
+                border-radius: 0 0 var(--radius-m) var(--radius-m);
+            }
+        }
+    }
+
+    /* ---------- Description ---------- */
+    > section[aria-labelledby="sobre"] {
+        grid-area: about;
+        display: grid;
+        gap: var(--space-s);
+        max-width: 68ch;
+        font-size: var(--step-1);
+        line-height: 1.65;
+        color: var(--ink-soft);
+
+        > h2 {
+            color: var(--ink);
+        }
+
+        > :is(ul, ol) {
+            padding-left: 1.2em;
+            list-style: disc;
+        }
+
+        a {
+            color: var(--mint-text);
+        }
+    }
+
+    /* ---------- Programme (timeline) ---------- */
+    > #programa {
+        grid-area: programme;
+        display: grid;
+        gap: var(--space-s);
+
+        > h3 {
+            position: sticky;
+            top: 4.2rem;
+            z-index: 2;
+            margin-top: var(--space-s);
+            padding: var(--space-2xs) 0;
+            background: color-mix(in oklab, var(--bg) 88%, transparent);
+            backdrop-filter: blur(10px);
+            font-size: var(--step-1);
+            color: var(--gold-text);
+
+            &::first-letter {
+                text-transform: uppercase;
+            }
+        }
+
+        > ol {
+            display: grid;
+            gap: 2px;
+            padding-left: var(--space-s);
+            border-left: 2px solid color-mix(in oklab, var(--gold) 40%, transparent);
+
+            > li {
+                position: relative;
+                display: grid;
+                grid-template-columns: 4rem 1fr;
+                gap: 0 var(--space-s);
+                padding: var(--space-xs) var(--space-s);
+                border-radius: var(--radius-m);
+                transition: background var(--dur-fast);
+
+                &::before {
+                    content: "";
+                    position: absolute;
+                    left: calc(var(--space-s) * -1 - 7px);
+                    top: 1.15rem;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background: var(--bg);
+                    border: 2px solid var(--gold);
+                }
+
+                &:hover {
+                    background: var(--surface);
+                }
+
+                > time {
+                    grid-row: span 2;
+                    font: 700 var(--step-0) / 1.5 var(--font-body);
+                    font-variant-numeric: tabular-nums;
+                    color: var(--mint-text);
+                }
+
+                > strong {
+                    font-size: var(--step-0);
+                }
+
+                > span {
+                    grid-column: 2;
+                    font-size: var(--step--1);
+                    color: var(--ink-soft);
+                }
+            }
+        }
+
+        > p {
+            color: var(--ink-soft);
+        }
+    }
+
+    /* ---------- Actions + mini-map (sticky sidebar) ---------- */
+    > #accions {
+        grid-area: actions;
+        display: grid;
+        gap: var(--space-xs);
+        padding: var(--space-s);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-l);
+        background: var(--glass);
+        backdrop-filter: blur(14px);
+
+        @media (width >= 60rem) {
+            position: sticky;
+            top: 5rem;
+        }
+
+        > :is(button, a) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2xs);
+            min-height: 3.1rem;
+            padding-inline: var(--space-s);
+            border-radius: var(--radius-pill);
+            font-weight: 650;
+            text-decoration: none;
+            transition: filter var(--dur-fast), translate var(--dur-fast) var(--ease-spring), box-shadow var(--dur);
+
+            &:hover {
+                translate: 0 -2px;
+            }
+        }
+
+        > button {
+            background: linear-gradient(45deg, #F9A825, #E63946 45%, #A855F7);
+            color: #fff;
+            box-shadow: 0 10px 30px -12px #E63946;
+        }
+
+        > a {
+            border: 1px solid var(--line-strong);
+
+            &:hover {
+                border-color: var(--gold);
+            }
+        }
+
+        > figure {
+            height: 14rem;
+            margin-top: var(--space-2xs);
+            border-radius: var(--radius-m);
+            overflow: hidden;
+            border: 1px solid var(--line);
+        }
+    }
+
+    /* ---------- Also nearby ---------- */
+    > #tambe {
+        grid-area: nearby;
+        display: grid;
+        gap: var(--space-m);
+    }
+}

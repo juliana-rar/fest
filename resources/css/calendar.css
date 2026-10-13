@@ -1,0 +1,290 @@
+/* =====================================================================
+   calendar.css — hand-made month calendar (7-column CSS Grid)
+   ===================================================================== */
+
+/* Calendar section: intro on the left, calendar on the right (desktop) */
+main > #agenda {
+    display: grid;
+    gap: var(--space-m);
+
+    > header {
+        margin-bottom: 0;
+    }
+
+    @media (width >= 60rem) {
+        grid-template-columns: minmax(0, 1fr) minmax(24rem, 38rem);
+        align-items: start;
+
+        > header {
+            position: sticky;
+            top: 6rem;
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+#calendari {
+    display: grid;
+    gap: var(--space-xs);
+    align-content: start;
+    padding: var(--space-s);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+    background:
+        radial-gradient(28rem 14rem at 100% 0%, color-mix(in oklab, var(--gold) 9%, transparent), transparent 70%),
+        var(--surface);
+    box-shadow: var(--shadow-1);
+
+    /* Header: month title, prev / today / next, view switch */
+    > header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2xs);
+
+        > h3 {
+            flex: 1 1 100%;
+            font-size: var(--step-2);
+            view-transition-name: cal-title;
+        }
+
+        > button[data-nav="0"] {
+            padding-inline: var(--space-s);
+            font-size: var(--step--1);
+            font-weight: 650;
+        }
+
+        > menu {
+            display: flex;
+            margin-left: auto;
+            padding: 3px;
+            border-radius: var(--radius-pill);
+            background: var(--surface-2);
+
+            button {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.35rem;
+                padding: 0.4rem 0.8rem;
+                border-radius: var(--radius-pill);
+                font-size: var(--step--1);
+                font-weight: 600;
+                color: var(--ink-soft);
+                transition: background var(--dur-fast), color var(--dur-fast);
+
+                &[aria-pressed="true"] {
+                    background: var(--gold);
+                    color: var(--accent-ink);
+                }
+            }
+        }
+    }
+
+    /* Weekday labels */
+    > p {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-size: var(--step--2);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+
+        > abbr:nth-child(n + 6) {
+            color: var(--red-text);
+        }
+    }
+
+    /* Day grid */
+    > ol {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        view-transition-name: cal-grid;
+        transition: opacity var(--dur);
+
+        &[aria-busy="true"] {
+            opacity: 0.45;
+        }
+
+        /* The first day starts on its weekday column (set inline: --start) */
+        > li:first-child {
+            grid-column-start: var(--start, 1);
+        }
+
+        > li > button {
+            --n: 0;
+            position: relative;
+            display: grid;
+            place-items: center;
+            width: 100%;
+            aspect-ratio: 1;
+            min-height: 2.5rem;
+            border-radius: var(--radius-m);
+            border: 1px solid transparent;
+            background: color-mix(in oklab, var(--gold) calc(min(var(--n), 4) * 13%), var(--surface-2));
+            font-size: var(--step--1);
+            font-weight: 550;
+            font-variant-numeric: tabular-nums;
+            transition: background var(--dur-fast), border-color var(--dur-fast), scale var(--dur-fast) var(--ease-spring);
+
+            &:hover {
+                border-color: var(--gold);
+                scale: 1.06;
+            }
+
+            /* Festival counter */
+            > small {
+                position: absolute;
+                bottom: 3px;
+                right: 3px;
+                min-width: 1.15rem;
+                padding: 0 0.3rem;
+                border-radius: var(--radius-pill);
+                background: var(--btn);
+                color: var(--btn-ink);
+                font-size: 0.62rem;
+                font-weight: 800;
+                line-height: 1.15rem;
+            }
+
+            &:has(> small) {
+                font-weight: 750;
+            }
+
+            &[aria-current="date"] {
+                border-color: var(--red-text);
+                box-shadow: inset 0 0 0 1px var(--red-text);
+                color: var(--red-text);
+            }
+
+            &[aria-pressed="true"] {
+                background: var(--gold);
+                color: var(--accent-ink);
+                box-shadow: var(--glow);
+                scale: 1.04;
+
+                > small {
+                    background: var(--accent-ink);
+                    color: var(--gold);
+                }
+            }
+
+            /* Days already over are dimmed */
+            &[data-past] {
+                color: var(--ink-faint);
+            }
+        }
+    }
+
+    /* List view */
+    > ul {
+        display: grid;
+        gap: var(--space-2xs);
+        max-height: 30rem;
+        overflow-y: auto;
+        scrollbar-width: thin;
+
+        > li {
+            display: grid;
+            grid-template-columns: 3.4rem 1fr;
+            gap: 0 var(--space-xs);
+            align-items: center;
+            padding: var(--space-2xs);
+            border-radius: var(--radius-m);
+            transition: background var(--dur-fast);
+
+            &:hover {
+                background: var(--surface-2);
+            }
+
+            > time {
+                grid-row: span 2;
+                display: grid;
+                place-items: center;
+                aspect-ratio: 1;
+                border-radius: var(--radius-m);
+                background: color-mix(in oklab, var(--gold) 18%, transparent);
+                color: var(--gold-text);
+                font: 800 var(--step-1) / 1 var(--font-display);
+            }
+
+            > a {
+                font-weight: 650;
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+
+            > small {
+                color: var(--ink-soft);
+            }
+
+            &:only-child:not(:has(a)) {
+                display: block;
+                color: var(--ink-soft);
+            }
+        }
+    }
+
+    /* Selected day detail */
+    > aside {
+        display: grid;
+        gap: var(--space-2xs);
+        padding-top: var(--space-xs);
+        border-top: 1px solid var(--line);
+
+        > h4 {
+            font-size: var(--step-0);
+            color: var(--ink-soft);
+            font-family: var(--font-body);
+            font-weight: 600;
+        }
+
+        > ul {
+            display: grid;
+            gap: var(--space-3xs);
+
+            > li > a {
+                display: flex;
+                justify-content: space-between;
+                gap: var(--space-2xs);
+                padding: 0.55rem 0.8rem;
+                border-radius: var(--radius-m);
+                background: var(--surface-2);
+                font-weight: 600;
+                text-decoration: none;
+                transition: background var(--dur-fast), translate var(--dur-fast);
+
+                > small {
+                    color: var(--ink-soft);
+                    font-weight: 400;
+                }
+
+                &:hover {
+                    background: color-mix(in oklab, var(--gold) 18%, var(--surface-2));
+                    translate: 3px 0;
+                }
+            }
+        }
+    }
+}
+
+::view-transition-old(cal-grid) {
+    animation: var(--dur) var(--ease-out) both cal-out;
+}
+
+::view-transition-new(cal-grid) {
+    animation: var(--dur) var(--ease-out) both cal-in;
+}
+
+@keyframes cal-out {
+    to { opacity: 0; translate: calc(var(--cal-dir, 1) * -24px) 0; }
+}
+
+@keyframes cal-in {
+    from { opacity: 0; translate: calc(var(--cal-dir, 1) * 24px) 0; }
+}

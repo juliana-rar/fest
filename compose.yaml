@@ -1,0 +1,40 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: localhost/festes-web:latest
+    # --no-reload lets PHP_CLI_SERVER_WORKERS (4) serve requests in parallel
+    # (map, API and assets load concurrently). Restart the container after editing .env.
+    entrypoint: ["sh", "/var/www/docker/php/entrypoint.sh"]
+    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000", "--no-reload"]
+    ports:
+      - "8000:8000"
+      - "5173:5173"
+    volumes:
+      - .:/var/www
+      # Dependencies on native volumes: reading thousands of small files
+      # through the Windows bind mount made every request take ~10 s.
+      - vendor:/var/www/vendor
+      - node_modules:/var/www/node_modules
+      - ./docker/php/app.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
+    depends_on:
+      - db
+
+  db:
+    image: docker.io/library/mariadb:11.4
+    environment:
+      MARIADB_DATABASE: festes
+      MARIADB_USER: festes
+      MARIADB_PASSWORD: festes
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/db/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "3307:3306"
+
+volumes:
+  dbdata:
+  vendor:
+  node_modules:

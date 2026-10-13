@@ -1,0 +1,530 @@
+/* =====================================================================
+   layout.css — page shell: header, section headers, search, footer
+   ===================================================================== */
+
+/* ---------- Page shell ---------------------------------------------- */
+main {
+    container: page / inline-size;
+    display: block;
+    outline: none;
+}
+
+main > :is(section, article) {
+    --pad: max(var(--gutter), (100cqi - var(--page)) / 2);
+    padding-inline: var(--pad);
+    padding-block: var(--space-xl) 0;
+}
+
+/* Shared section header: title, lead and optional controls */
+:is(#properes, #aprop, #agenda) > header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: var(--space-2xs) var(--space-m);
+    margin-bottom: var(--space-m);
+
+    > h2 {
+        grid-column: 1;
+    }
+
+    > p {
+        grid-column: 1;
+        max-width: 60ch;
+        color: var(--ink-soft);
+    }
+
+    > :is(nav, label) {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-self: end;
+    }
+}
+
+/* Round icon buttons used by the carousel and calendar */
+:is(#properes > header > nav, #calendari > header) > button {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    padding-inline: var(--space-2xs);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    transition: background var(--dur-fast), border-color var(--dur-fast), scale var(--dur-fast) var(--ease-spring);
+
+    &:hover {
+        border-color: var(--gold);
+        background: color-mix(in oklab, var(--gold) 16%, var(--surface));
+    }
+
+    &:active {
+        scale: 0.92;
+    }
+}
+
+#properes > header > nav {
+    display: flex;
+    gap: var(--space-2xs);
+}
+
+/* ---------- Header ----------------------------------------------------
+   Wordmark · primary nav (scroll-spy indicator) · language · theme · menu.
+   The primary <nav> is a native popover: a dropdown on phones, inline on
+   wider screens (the UA "hidden until open" rule is overridden).
+   ----------------------------------------------------------------------- */
+#top {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    height: 4.25rem;
+    padding-inline: max(var(--gutter), (100% - var(--page)) / 2);
+    background: color-mix(in oklab, var(--bg) 70%, transparent);
+    backdrop-filter: blur(20px) saturate(1.5);
+    border-bottom: 1px solid transparent;
+    transition: height var(--dur) var(--ease-out), background var(--dur), border-color var(--dur), box-shadow var(--dur);
+
+    /* Hairline in the brand colours, visible at the top of the page */
+    &::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 -1px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--gold) 55%, transparent) 30%, color-mix(in oklab, var(--red) 55%, transparent) 70%, transparent);
+        opacity: 0.55;
+        transition: opacity var(--dur);
+        pointer-events: none;
+    }
+
+    &[data-scrolled] {
+        height: 3.6rem;
+        background: color-mix(in oklab, var(--bg) 88%, transparent);
+        border-bottom-color: var(--line);
+        box-shadow: 0 10px 30px -18px rgb(0 0 0 / 0.6);
+
+        &::after {
+            opacity: 0;
+        }
+    }
+
+    /* Wordmark */
+    > a:first-child {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-right: auto;
+        color: var(--gold-text);
+        text-decoration: none;
+
+        > svg {
+            transition: rotate var(--dur-slow) var(--ease-spring);
+        }
+
+        &:hover > svg {
+            rotate: 45deg;
+        }
+
+        > img {
+            height: 2.1rem;
+            width: auto;
+            background: none;
+        }
+
+        > span {
+            display: grid;
+            font: 700 1.12rem / 1 var(--font-display);
+            letter-spacing: -0.025em;
+            color: var(--ink);
+
+            > small {
+                margin-top: 0.22rem;
+                font: 600 0.6rem / 1 var(--font-body);
+                letter-spacing: 0.26em;
+                text-transform: uppercase;
+                color: var(--ink-faint);
+            }
+        }
+    }
+
+    /* Primary navigation — phones: popover dropdown under the header */
+    > #menu {
+        inset: 4.5rem var(--gutter) auto auto;
+        min-width: 13rem;
+        margin: 0;
+        padding: var(--space-2xs);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-l);
+        background: color-mix(in oklab, var(--surface) 96%, transparent);
+        backdrop-filter: blur(20px);
+        box-shadow: var(--shadow-2);
+        color: var(--ink);
+
+        &:popover-open {
+            display: grid;
+            gap: 2px;
+            animation: fade-up var(--dur) var(--ease-out);
+        }
+
+        > a {
+            position: relative;
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-m);
+            font-size: var(--step--1);
+            font-weight: 550;
+            letter-spacing: 0.01em;
+            color: var(--ink-soft);
+            text-decoration: none;
+            transition: color var(--dur-fast), background var(--dur-fast);
+
+            &:hover {
+                color: var(--ink);
+                background: var(--surface-2);
+            }
+
+            &[aria-current] {
+                color: var(--ink);
+            }
+        }
+    }
+
+    /* Language switch: compact segmented control */
+    > nav:not(#menu) {
+        display: flex;
+        padding: 3px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-pill);
+
+        > a {
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--ink-faint);
+            text-decoration: none;
+            transition: color var(--dur-fast), background var(--dur-fast);
+
+            &:hover {
+                color: var(--ink);
+            }
+
+            &[aria-current] {
+                background: var(--surface-2);
+                color: var(--ink);
+            }
+        }
+    }
+
+    /* Theme toggle + menu button */
+    > button {
+        display: grid;
+        place-items: center;
+        width: 2.3rem;
+        height: 2.3rem;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+        color: var(--ink-soft);
+        transition: color var(--dur-fast), border-color var(--dur-fast), background var(--dur-fast);
+
+        &:hover {
+            color: var(--ink);
+            border-color: var(--line-strong);
+            background: var(--surface-2);
+        }
+    }
+
+    /* Wider screens: inline navigation with an animated indicator */
+    @media (width >= 48rem) {
+        gap: var(--space-s);
+
+        > #menu {
+            position: static;
+            display: flex;
+            gap: 0.25rem;
+            inset: auto;
+            min-width: 0;
+            margin-inline: auto;
+            padding: 0;
+            border: 0;
+            background: none;
+            backdrop-filter: none;
+            box-shadow: none;
+            overflow: visible;
+
+            > a {
+                padding: 0.5rem 0.95rem;
+                background: none;
+
+                &:hover {
+                    background: none;
+                }
+
+                &::after {
+                    content: "";
+                    position: absolute;
+                    inset: auto 0.95rem 0.15rem;
+                    height: 2px;
+                    border-radius: 2px;
+                    background: linear-gradient(90deg, var(--gold), var(--red));
+                    scale: 0 1;
+                    transition: scale var(--dur) var(--ease-out);
+                }
+
+                &:hover::after {
+                    scale: 0.45 1;
+                }
+
+                &[aria-current]::after {
+                    scale: 1 1;
+                }
+            }
+        }
+
+        > a:first-child {
+            margin-right: 0;
+        }
+
+        > button[popovertarget] {
+            display: none;
+        }
+    }
+}
+
+/* ---------- Search with autocomplete --------------------------------- */
+#cerca {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-2xs);
+    max-width: 40rem;
+
+    > label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    > input {
+        min-height: 3.1rem;
+        padding-inline: 1.2rem;
+        border-radius: var(--radius-pill);
+        background: color-mix(in oklab, var(--bg) 55%, transparent);
+        font-size: var(--step--1);
+
+        &::-webkit-search-cancel-button {
+            filter: grayscale(1);
+        }
+    }
+
+    > button[type="submit"] {
+        display: grid;
+        place-items: center;
+        width: 3.1rem;
+        border-radius: var(--radius-pill);
+        background: var(--btn);
+        color: var(--btn-ink);
+        box-shadow: 0 6px 16px -8px color-mix(in oklab, var(--red) 80%, transparent);
+        transition: scale var(--dur-fast) var(--ease-spring), filter var(--dur-fast);
+
+        &:hover {
+            filter: brightness(1.1);
+        }
+    }
+
+    > button[type="button"] {
+        grid-column: 1 / -1;
+        justify-self: start;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2xs);
+        padding: 0.55rem 1rem;
+        border-radius: var(--radius-pill);
+        color: var(--mint-text);
+        font-weight: 600;
+        transition: background var(--dur-fast);
+
+        &:hover {
+            background: color-mix(in oklab, var(--mint) 12%, transparent);
+        }
+
+        &[aria-busy="true"] > svg {
+            animation: pulse 1.2s infinite;
+            border-radius: 50%;
+        }
+    }
+
+    > ul {
+        position: absolute;
+        inset: calc(3.1rem + var(--space-2xs)) 0 auto;
+        max-height: 22rem;
+        overflow-y: auto;
+        padding: var(--space-3xs);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-l);
+        background: color-mix(in oklab, var(--surface) 92%, transparent);
+        backdrop-filter: blur(18px);
+        box-shadow: var(--shadow-2);
+        animation: fade-up var(--dur) var(--ease-out);
+
+        > li {
+            display: grid;
+            gap: 0.1rem;
+            padding: 0.65rem 1rem;
+            border-radius: var(--radius-m);
+            cursor: pointer;
+
+            > strong {
+                font-weight: 650;
+            }
+
+            > small {
+                color: var(--ink-soft);
+            }
+
+            &:is(:hover, [aria-selected="true"]) {
+                background: color-mix(in oklab, var(--gold) 16%, transparent);
+            }
+
+            &[aria-disabled="true"] {
+                cursor: default;
+                color: var(--ink-soft);
+                background: none;
+            }
+        }
+    }
+}
+
+/* ---------- Status pages (404 / offline) ----------------------------- */
+main > #avis {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-s);
+    min-height: 60dvh;
+    align-content: center;
+    text-align: center;
+
+    > svg {
+        color: var(--gold);
+        animation: drift 3s ease-in-out infinite alternate;
+    }
+
+    > p {
+        max-width: 46ch;
+        color: var(--ink-soft);
+    }
+
+    > a {
+        padding: 0.75rem 1.4rem;
+        border-radius: var(--radius-pill);
+        background: var(--btn);
+        color: var(--btn-ink);
+        font-weight: 650;
+        text-decoration: none;
+    }
+}
+
+/* ---------- Footer ---------------------------------------------------- */
+#peu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: var(--space-l) var(--space-m);
+    margin-top: var(--space-xl);
+    padding: var(--space-xl) max(var(--gutter), (100% - var(--page)) / 2) var(--space-l);
+    border-top: 1px solid var(--line);
+    background:
+        radial-gradient(40rem 16rem at 0% 0%, color-mix(in oklab, var(--red) 12%, transparent), transparent 70%),
+        var(--bg-deep);
+
+    > section {
+        grid-column: 1 / -1;
+        max-width: 38rem;
+
+        > h2 {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2xs);
+            font-size: var(--step-2);
+            color: var(--ink);
+
+            > svg {
+                color: var(--gold);
+            }
+        }
+
+        > p {
+            margin-top: var(--space-2xs);
+            color: var(--ink-soft);
+        }
+    }
+
+    > nav {
+        > h2 {
+            margin-bottom: var(--space-xs);
+            font: 650 var(--step--1) / 1 var(--font-body);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--gold-text);
+        }
+
+        > ul {
+            display: grid;
+            gap: var(--space-2xs);
+
+            a {
+                color: var(--ink-soft);
+                text-decoration: none;
+
+                &:hover,
+                &[aria-current] {
+                    color: var(--ink);
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    /* Social icons in a row (the nav whose links are icons) */
+    > nav:has(a > svg) > ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2xs);
+
+        a {
+            display: grid;
+            place-items: center;
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 50%;
+            border: 1px solid var(--line-strong);
+            transition: background var(--dur-fast), color var(--dur-fast), translate var(--dur-fast) var(--ease-spring);
+
+            &:hover {
+                background: var(--gold);
+                color: var(--accent-ink);
+                translate: 0 -3px;
+            }
+        }
+    }
+
+    > p {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: var(--space-s);
+        padding-top: var(--space-m);
+        border-top: 1px solid var(--line);
+        color: var(--ink-faint);
+
+        > a {
+            font-size: var(--step--1);
+        }
+    }
+}
